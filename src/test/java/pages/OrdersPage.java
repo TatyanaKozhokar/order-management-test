@@ -77,41 +77,45 @@ public class OrdersPage {
     wait.until(ExpectedConditions.urlContains("/orders"));
   }
 
-  public void clickCreateOrder() {
+  public OrdersPage clickCreateOrder() {
     driver.findElement(createOrderButton).click();
     wait.until(ExpectedConditions.visibilityOf(driver.findElement(customersName)));
+    return this;
   }
 
-  public void selectProduct(String name) {
+  public OrdersPage selectProduct(String name) {
     WebElement element = driver.findElement(selectProductInput);
     element.sendKeys(name);
     wait.until(ExpectedConditions.elementToBeClickable(selectProductInput));
     element.click();
     wait.until(ExpectedConditions.textToBe(selectProductInput, name));
-
+    return this;
   }
 
-  public void setQuantity(int qty) {
+  public OrdersPage setQuantity(int qty) {
     WebElement input = driver.findElement(quantityInput);
     input.clear();
     input.sendKeys(String.valueOf(qty));
+    return this;
   }
 
-  public void fillCustomer(String customerName, String phone, String address) {
+  public OrdersPage fillCustomer(String customerName, String phone, String address) {
     driver.findElement(customersName).sendKeys(customerName);
     driver.findElement(customersPhone).sendKeys(phone);
     driver.findElement(customersAddress).sendKeys(address);
+    return this;
   }
 
-  public void fillPayment(String method, String cardNumberData) {
+  public OrdersPage fillPayment(String method, String cardNumberData) {
     driver.findElement(paymentMethodBy).sendKeys(method);
     driver.findElement(cardNumber).sendKeys(cardNumberData);
+    return this;
   }
 
   public void submitOrder() {
     var button = wait.until(ExpectedConditions.elementToBeClickable(submitButton));
     button.click();
-    wait.until(ExpectedConditions.visibilityOf(driver.findElement(notificationText)));
+    wait.until(ExpectedConditions.visibilityOfElementLocated(notificationText));
   }
 
   public String getOrderId() {
@@ -135,16 +139,15 @@ public class OrdersPage {
         approveButton,
         id
     );
-
     try {
-      var button = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpath)));
+      var button = wait.until(
+          ExpectedConditions.elementToBeClickable(By.xpath(xpath))
+      );
       button.click();
-      wait.until(ExpectedConditions.visibilityOfElementLocated(
-          By.xpath("//div[contains(text(),'Утверждено')]")
-      ));
+      wait.until(ExpectedConditions.stalenessOf(button));
     } catch (TimeoutException e) {
       throw new RuntimeException(
-          "Не удалось утвердить заказ '" + orderId + "': кнопка не найдена или не кликабельна",
+          "Не удалось утвердить заказ '" + orderId + "': " + e.getMessage(),
           e
       );
     }
@@ -172,12 +175,13 @@ public class OrdersPage {
   }
 
 
-  public void openUsersList() {
+  public OrdersPage openUsersList() {
     driver.findElement(usersButton).click();
     wait.until(ExpectedConditions.visibilityOfElementLocated(userName));
+    return this;
   }
 
-  public void createUser(String name, String email, String role, String password) {
+  public OrdersPage createUser(String name, String email, String role, String password) {
     driver.findElement(addUserButton).click();
     driver.findElement(userName).sendKeys(name);
     driver.findElement(userEmail).sendKeys(email);
@@ -186,14 +190,16 @@ public class OrdersPage {
     driver.findElement(saveUserButton).click();
 
     wait.until(ExpectedConditions.visibilityOfElementLocated(notificationText));
+    return this;
   }
 
-  public void openProductCatalog() {
+  public OrdersPage openProductCatalog() {
     driver.findElement(products).click();
     wait.until(ExpectedConditions.urlContains(PRODUCTS_URL));
+    return this;
   }
 
-  public void createProduct(String name, int price) {
+  public OrdersPage createProduct(String name, int price) {
     driver.findElement(addProductButton).click();
     driver.findElement(productName).sendKeys(name);
     driver.findElement(productPrice).sendKeys(String.valueOf(price));
@@ -202,6 +208,7 @@ public class OrdersPage {
     wait.until(ExpectedConditions.visibilityOfElementLocated(
         By.xpath("//div[text()='Создан']")
     ));
+    return this;
   }
 
   public String getOrderDetailCustomerName() {
@@ -283,19 +290,20 @@ public class OrdersPage {
   }
 
   public String createTestOrder(int quantity) {
-    clickCreateOrder();
-    fillCustomer(customerName, customerPhone, customerAddress);
-    fillPayment(paymentMethod, cardNumberData);
-    selectProduct(testProductName);
-    setQuantity(quantity);
-    submitOrder();
+    clickCreateOrder()
+        .fillCustomer(customerName, customerPhone, customerAddress)
+        .fillPayment(paymentMethod, cardNumberData)
+        .selectProduct(testProductName)
+        .setQuantity(quantity)
+        .submitOrder();
     return getOrderId();
   }
 
-  public void goToOrderDetail(String orderId) {
+  public OrdersPage goToOrderDetail(String orderId) {
     String baseUrl = ConfigReader.getProperty("base.url");
     String orderDetailUrl = baseUrl + "/orders/" + orderId;
     driver.get(orderDetailUrl);
+    return this;
   }
 
   public void deleteTestData() {
@@ -305,6 +313,6 @@ public class OrdersPage {
   }
 
 
-  public void exit(){ //выйти из учетной записи
+  public void exit(){
   }
 }

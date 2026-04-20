@@ -26,6 +26,7 @@ public class LoginPage {
   private final By loginButton = By.id("login-btn");
 
 public void login(String loginData, String passwordData){
+  driver.get(getLoginUrl());
   driver.findElement(usernameInput).sendKeys(loginData);
   driver.findElement(passwordInput).sendKeys(passwordData);
   driver.findElement(loginButton).click();

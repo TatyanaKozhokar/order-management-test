@@ -44,12 +44,12 @@ class OrderManagementTest {
     driver.get(loginPage.getLoginUrl());
     loginPage.login(adminUserName, adminPassword);
 
-    ordersPage.openUsersList();
-    ordersPage.createUser(testUserName, testUserEmail, testUserRole, testUserPassword);
-    ordersPage.createUser(testOperatorName, testOperatorEmail, testOperatorRole, testOperatorPassword);
-    ordersPage.openProductCatalog();
-    ordersPage.createProduct(testProductName, testProductPrice);
-    ordersPage.exit();
+    ordersPage.openUsersList()
+        .createUser(testUserName, testUserEmail, testUserRole, testUserPassword)
+        .createUser(testOperatorName, testOperatorEmail, testOperatorRole, testOperatorPassword)
+        .openProductCatalog()
+        .createProduct(testProductName, testProductPrice)
+        .exit();
   }
 
   @Test
@@ -80,12 +80,11 @@ class OrderManagementTest {
     var quantity = 1;
     WebDriver driver = WebDriverFactory.getDriver();
     LoginPage loginPage = new LoginPage(driver);  // инициализация после driver
-    driver.get(loginPage.getLoginUrl());
     loginPage.login(testOperatorEmail, testOperatorPassword);
     ordersPage.goToOrders();
     createdOrderId = ordersPage.createTestOrder(quantity);
-    ordersPage.goToOrderDetail(createdOrderId);
-    ordersPage.clickApprove(createdOrderId);
+    ordersPage.goToOrderDetail(createdOrderId)
+    .clickApprove(createdOrderId);
 
     assertEquals(STATUS_APPROVED, ordersPage.getOrderStatus(createdOrderId));
   }
@@ -100,8 +99,8 @@ class OrderManagementTest {
     loginPage.login(testUserEmail, testUserPassword);
     ordersPage.goToOrders();
     createdOrderId = ordersPage.createTestOrder(quantity);
-    ordersPage.goToOrderDetail(createdOrderId);
-    ordersPage.clickCancel(createdOrderId);
+    ordersPage.goToOrderDetail(createdOrderId)
+    .clickCancel(createdOrderId);
 
     assertEquals(STATUS_CANCELLED, ordersPage.getOrderStatus(createdOrderId));
   }
@@ -133,8 +132,8 @@ class OrderManagementTest {
     ordersPage.exit();
     driver.get(loginPage.getLoginUrl());
     loginPage.login(testOperatorEmail, testOperatorPassword);
-    ordersPage.goToOrderDetail(createdOrderId);
-    ordersPage.clickExportButton();
+    ordersPage.goToOrderDetail(createdOrderId)
+    .clickExportButton();
 
     assertTrue(ordersPage.isExportComplete());
 
