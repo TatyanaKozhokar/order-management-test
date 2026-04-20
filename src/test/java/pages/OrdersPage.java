@@ -62,21 +62,10 @@ public class OrdersPage {
   private final By searchButton = By.cssSelector("search-btn");
   private final By ordersList = By.cssSelector("#orders-grid tbody tr");
 
-  private final String approveButton = "//tr[td[text()='%s']]//button[@title='Утвердить']";
-  private final String cancelButton = "//tr[td[text()='%s']]//button[@title='Отменить']";
-  private final String orderIdLocator = "//table[@id='orders-grid']//tr[td[text()='%s']]/td[5]";
-
-
 
   public OrdersPage(WebDriver driver) {
     this.driver = driver;
     this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-  }
-
-  public void searchOrderByCustomer(String name) {
-    driver.findElement(searchInput).sendKeys(name);
-    driver.findElement(searchButton).click();
-    wait.until(ExpectedConditions.visibilityOf(driver.findElement(ordersList)));
   }
 
   public List<WebElement> getOrdersList() {
@@ -131,6 +120,7 @@ public class OrdersPage {
 
   public String getOrderStatus(String orderId) {
     String id = orderId.replace("'", "\\'");
+    String orderIdLocator = "//table[@id='orders-grid']//tr[td[text()='%s']]/td[5]";
     String xpath = String.format(
         orderIdLocator,
         id
@@ -140,6 +130,7 @@ public class OrdersPage {
 
   public void clickApprove(String orderId) {
     String id = orderId.replace("'", "\\'");
+    String approveButton = "//tr[td[text()='%s']]//button[@title='Утвердить']";
     String xpath = String.format(
         approveButton,
         id
@@ -161,6 +152,7 @@ public class OrdersPage {
 
   public void clickCancel(String orderId) {
     String id = orderId.replace("'", "\\'");
+    String cancelButton = "//tr[td[text()='%s']]//button[@title='Отменить']";
     String xpath = String.format(
         cancelButton,
         id
@@ -194,16 +186,6 @@ public class OrdersPage {
 
     wait.until(ExpectedConditions.visibilityOfElementLocated(notificationText));
   }
-
-  public void deleteUser(String email) {
-    String emailReplaced = email.replace("'", "\\'");
-    String deleteButtonXpath = "//tr[td[text()='" + emailReplaced + "']]//button[@title='Удалить']";
-    WebElement deleteButton = wait.until(
-        ExpectedConditions.elementToBeClickable(By.xpath(deleteButtonXpath))
-    );
-    deleteButton.click();
-  }
-
 
   public void openProductCatalog() {
     driver.findElement(products).click();

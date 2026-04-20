@@ -106,7 +106,7 @@ class OrderManagementTest {
 
     @AfterEach
     void tearDown() {
-        driver.quit();
+      WebDriverFactory.quitDriver();
 
     }
 }
