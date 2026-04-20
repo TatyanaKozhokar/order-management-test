@@ -177,7 +177,7 @@ public class OrdersPage {
     wait.until(ExpectedConditions.visibilityOfElementLocated(userName));
   }
 
-  public void createUser(String name, String email, String role) {
+  public void createUser(String name, String email, String role, String password) {
     driver.findElement(addUserButton).click();
     driver.findElement(userName).sendKeys(name);
     driver.findElement(userEmail).sendKeys(email);
@@ -289,5 +289,21 @@ public class OrdersPage {
     setQuantity(quantity);
     submitOrder();
     return getOrderId();
+  }
+
+  public void goToOrderDetail(String orderId) {
+    String baseUrl = ConfigReader.getProperty("base.url");
+    String orderDetailUrl = baseUrl + "/orders/" + orderId;
+    driver.get(orderDetailUrl);
+  }
+
+  public void deleteTestData() {
+    //delete test product
+    //delete test user
+    //delete test operator
+  }
+
+
+  public void exit(){ //выйти из учетной записи
   }
 }
