@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class OrderManagementTest {
 
-  private static WebDriver driver;
   private OrdersPage ordersPage;
   private static String createdOrderId;
   private static final String adminUserName = ConfigReader.getProperty("admin.username");
@@ -34,7 +33,7 @@ class OrderManagementTest {
   @BeforeEach
     void setUp() {
     WebDriverFactory.initDriver();
-    driver = WebDriverFactory.getDriver();
+    WebDriver driver = WebDriverFactory.getDriver();
     LoginPage loginPage = new LoginPage(driver);  // инициализация после driver
     ordersPage = new OrdersPage(driver);
     driver.get(loginPage.getLoginUrl());
