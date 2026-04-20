@@ -1,85 +1,70 @@
+import driver.ConfigReader;
+import driver.WebDriverFactory;
+import pages.LoginPage;
 import pages.OrdersPage;
 import org.junit.jupiter.api.*;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 
-import java.util.List;
+import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class OrderManagementTest {
 
-    private static WebDriver driver;
-    private static OrdersPage ordersPage;
-    private static String createdOrderId;
+  private static WebDriver driver;
+  private OrdersPage ordersPage;
+  private static String createdOrderId;
+  private static final String adminUserName = ConfigReader.getProperty("admin.username");
+  private static final String adminPassword = ConfigReader.getProperty("admin.password");
+  private static final String testUserName = ConfigReader.getProperty("test.user.name");
+  private static final String testUserEmail = ConfigReader.getProperty("test.user.email");
+  private static final String testUserRole = ConfigReader.getProperty("test.user.role");
+  private static final String testProductName = ConfigReader.getProperty("test.product.name");
+  private static final int testProductPrice = Integer.parseInt(ConfigReader.getProperty("test.product.price"));
+  private static final String customerName = ConfigReader.getProperty("test.customer.name");
+  private static final String customerPhone = ConfigReader.getProperty("test.customer.phone");
+  private static final String customerAddress = ConfigReader.getProperty("test.customer.address");
 
-    @BeforeEach
+  private static final String STATUS_PENDING = "Заказ создан";
+  private static final String STATUS_APPROVED = "Заказ подтвержден";
+  private static final String STATUS_CANCELLED = "Заказ отменен";
+
+  @BeforeEach
     void setUp() {
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.get("https://orders.internal.example.com");
+    WebDriverFactory.initDriver();
+    driver = WebDriverFactory.getDriver();
+    LoginPage loginPage = new LoginPage(driver);  // инициализация после driver
+    ordersPage = new OrdersPage(driver);
+    driver.get(loginPage.getLoginUrl());
+      loginPage.login(adminUserName, adminPassword);
 
+      ordersPage.openUsersList();
+      ordersPage.createUser(testUserName, testUserEmail, testUserRole);
 
-        driver.findElement(By.id("username")).sendKeys("admin");
-        driver.findElement(By.id("password")).sendKeys("Admin123!");
-        driver.findElement(By.id("login-btn")).click();
-        try {
-            Thread.sleep(2000);
-        } catch (Exception e) {
-        }
+      ordersPage.openProductCatalog();
+      ordersPage.createProduct(testProductName, testProductPrice);
 
-
-        ordersPage = new OrdersPage(driver);
-        ordersPage.openUsersList();
-        ordersPage.createUser("Иван Петров", "ivan@test.com", "CUSTOMER");
-        try {
-            Thread.sleep(1000);
-        } catch (Exception e) {
-        }
-
-
-        ordersPage.openProductCatalog();
-        ordersPage.createProduct("Тестовый товар", 999);
-        try {
-            Thread.sleep(1000);
-        } catch (Exception e) {
-        }
-
-
-        driver.findElement(By.linkText("Заказы")).click();
+      ordersPage.goToOrders();
     }
 
     @Test
     @Order(1)
     void createOrderAndVerifyAllFields() {
-        ordersPage.clickCreateOrder();
-        ordersPage.fillCustomer("Иван Петров", "+79990000001", "Москва, Тверская, 1");
-        ordersPage.fillPayment("CARD", "4111111111111111");
-        ordersPage.selectProduct("Тестовый товар");
-        ordersPage.setQuantity(3);
-        ordersPage.submitOrder();
+      var quantity = 3;
+      var totalPrice = testProductPrice * quantity;
 
-        createdOrderId = ordersPage.getOrderId();
+      createdOrderId = ordersPage.createTestOrder(quantity);
 
-
-        assertEquals("Иван Петров",
-                driver.findElement(By.cssSelector(".order-detail .customer-name")).getText());
-        assertEquals("+79990000001",
-                driver.findElement(By.cssSelector(".order-detail .customer-phone")).getText());
-        assertEquals("Москва, Тверская, 1",
-                driver.findElement(By.cssSelector(".order-detail .customer-address")).getText());
-        assertEquals("3",
-                driver.findElement(By.cssSelector(".order-detail .qty")).getText());
-        assertEquals("2 997 ₽",
-                driver.findElement(By.cssSelector(".order-detail .total")).getText());
-        assertEquals("PENDING", ordersPage.getOrderStatus(createdOrderId));
-        assertTrue(
-                driver.findElement(By.cssSelector(".order-detail .created-at")).isDisplayed());
-        assertFalse(
-                driver.findElement(By.cssSelector(".order-detail .error-block")).isDisplayed());
+      assertEquals(customerName, ordersPage.getOrderDetailCustomerName());
+      assertEquals(customerPhone, ordersPage.getOrderDetailCustomerPhone());
+      assertEquals(customerAddress, ordersPage.getOrderDetailCustomerAddress());
+      assertEquals(quantity, ordersPage.getOrderDetailQuantity());
+      assertEquals(totalPrice, ordersPage.getOrderDetailTotal());
+      assertEquals(STATUS_PENDING , ordersPage.getOrderStatus(createdOrderId));
+      assertTrue(ordersPage.isOrderDetailCreatedAtDisplayed());
+      assertFalse(ordersPage.isOrderDetailErrorBlockDisplayed());
     }
 
     @Test
@@ -87,66 +72,36 @@ class OrderManagementTest {
     void approveCreatedOrder() {
 
         ordersPage.clickApprove(createdOrderId);
-        assertEquals("APPROVED", ordersPage.getOrderStatus(createdOrderId));
+        assertEquals(STATUS_APPROVED, ordersPage.getOrderStatus(createdOrderId));
     }
 
     @Test
     @Order(3)
     void cancelCreatedOrder() {
-
-        ordersPage.clickCreateOrder();
-        ordersPage.fillCustomer("Иван Петров", "+79990000001", "Москва, Тверская, 1");
-        ordersPage.fillPayment("CARD", "4111111111111111");
-        ordersPage.selectProduct("Тестовый товар");
-        ordersPage.setQuantity(1);
-        ordersPage.submitOrder();
-
-        String orderId = ordersPage.getOrderId();
+      var quantity = 1;
+        String orderId = ordersPage.createTestOrder(quantity);
 
         ordersPage.clickCancel(orderId);
 
-
-        String status = ordersPage.getOrderStatus(orderId);
-        if (status.equals("PENDING") || status.equals("APPROVED")) {
-            fail("Ожидался статус CANCELLED, но получен: " + status);
-        } else {
-            assertEquals("CANCELLED", status);
-        }
-    }
-
-    @Test
-    void searchOrdersByCustomer() {
-        driver.findElement(By.id("search-input")).sendKeys("Иван Петров");
-        driver.findElement(By.id("search-btn")).click();
-
-        try {
-            Thread.sleep(1500);
-        } catch (Exception e) {
-
-        }
-
-        List<WebElement> rows = driver.findElements(
-                By.cssSelector("#orders-grid tbody tr")
-        );
+        assertEquals(STATUS_CANCELLED, ordersPage.getOrderStatus(orderId));
+      }
 
 
-        for (WebElement row : rows) {
-            String customer = row.findElement(By.cssSelector("td:nth-child(2)")).getText();
-            if (customer.contains("Иван")) {
-                assertTrue(row.isDisplayed());
-            }
-        }
-    }
+  @Test
+  void searchOrdersByCustomer() {
+    ordersPage.searchOrders(customerName);
+    assertTrue(ordersPage.areAllResultsContaining(customerName));
+  }
 
     @Test
     void exportOrdersToExcel() {
-        try {
-            driver.findElement(By.id("export-btn")).click();
-            Thread.sleep(3000);
-            assertTrue(driver.findElement(By.id("export-btn")).isEnabled());
-        } catch (Exception e) {
+      ordersPage.clickExportButton();
 
-        }
+      assertTrue(ordersPage.isExportComplete());
+
+      File exportedFile = ordersPage.getExportedFile("export.xlsx");
+      assertTrue(exportedFile.exists());
+      assertTrue(exportedFile.length() > 0);
     }
 
     @AfterEach
