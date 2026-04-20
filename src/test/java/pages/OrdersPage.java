@@ -181,6 +181,7 @@ public class OrdersPage {
     driver.findElement(addUserButton).click();
     driver.findElement(userName).sendKeys(name);
     driver.findElement(userEmail).sendKeys(email);
+    driver.findElement(userEmail).sendKeys(password);
     driver.findElement(userRole).sendKeys(role);
     driver.findElement(saveUserButton).click();
 
