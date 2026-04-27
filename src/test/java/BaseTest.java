@@ -11,6 +11,8 @@ import pages.admin.UsersManagementPage;
 import pages.orders.CreateOrderPage;
 import pages.orders.OrdersPage;
 
+import static data.TestData.*;
+
 public abstract class BaseTest {
 
   protected static WebDriver driver;
@@ -36,17 +38,17 @@ public abstract class BaseTest {
     productsManagementPage = new ProductsManagementPage(driver);
 
     driver.get(loginPage.getLoginUrl());
-    loginPage.login(TestData.ADMIN_USERNAME, TestData.ADMIN_PASSWORD);
+    loginPage.login(ADMIN_USERNAME, ADMIN_PASSWORD);
     prepareTestData();
     ordersPage.exit();
   }
 
   private void prepareTestData() {
     usersManagementPage.open()
-        .createUser(TestData.TEST_USER_NAME, TestData.TEST_USER_EMAIL,
-            TestData.TEST_USER_ROLE, TestData.TEST_USER_PASSWORD)
-        .createUser(TestData.TEST_OPERATOR_NAME, TestData.TEST_OPERATOR_EMAIL,
-            TestData.TEST_OPERATOR_ROLE, TestData.TEST_OPERATOR_PASSWORD);
+        .createUser(TEST_USER_NAME, TEST_USER_EMAIL, TEST_USER_ROLE, TEST_USER_PASSWORD)
+        .createUser(TEST_OPERATOR_NAME, TEST_OPERATOR_EMAIL, TEST_OPERATOR_ROLE, TEST_OPERATOR_PASSWORD);
+
+    productsManagementPage.createTestProduct();
 
   }
 
@@ -64,12 +66,12 @@ public abstract class BaseTest {
 
   protected void loginAsUser() {
     driver.get(loginPage.getLoginUrl());
-    loginPage.login(TestData.TEST_USER_EMAIL, TestData.TEST_USER_PASSWORD);
+    loginPage.login(TEST_USER_EMAIL, TEST_USER_PASSWORD);
   }
 
   protected void loginAsOperator() {
     driver.get(loginPage.getLoginUrl());
-    loginPage.login(TestData.TEST_OPERATOR_EMAIL, TestData.TEST_OPERATOR_PASSWORD);
+    loginPage.login(TEST_OPERATOR_EMAIL, TEST_OPERATOR_PASSWORD);
   }
 
   protected String createOrder(int quantity) {

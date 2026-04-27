@@ -16,9 +16,8 @@ public class CreateOrderPage extends BasePage {
     return this;
   }
 
-  public CreateOrderPage setQuantity(int quantity) {
+  public void setQuantity(int quantity) {
     sendKeys(Locators.QUANTITY_INPUT, String.valueOf(quantity));
-    return this;
   }
 
   public CreateOrderPage fillCustomerInfo(String name, String phone, String address) {

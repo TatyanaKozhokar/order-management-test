@@ -54,9 +54,4 @@ public class WebDriverManager {
       driver = null;
     }
   }
-
-  public static void restartDriver() {
-    quitDriver();
-    initializeDriver();
-  }
 }

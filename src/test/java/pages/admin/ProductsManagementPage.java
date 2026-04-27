@@ -15,12 +15,6 @@ public class ProductsManagementPage extends BasePage {
     super(driver);
   }
 
-  public ProductsManagementPage open() {
-    click(Locators.PRODUCTS_BUTTON);
-    waitForUrlContains(PRODUCTS_URL);
-    return this;
-  }
-
   public ProductsManagementPage createProduct(String name, int price) {
     click(Locators.ADD_PRODUCT_BUTTON);
     sendKeys(Locators.PRODUCT_NAME, name);

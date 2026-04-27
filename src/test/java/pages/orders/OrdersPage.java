@@ -2,7 +2,6 @@ package pages.orders;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.xml.sax.Locator;
 import pages.BasePage;
 import pages.Locators;
 
@@ -14,7 +13,6 @@ public class OrdersPage extends BasePage {
 
   public OrdersPage(WebDriver driver) {
     super(driver);
-    CreateOrderPage createOrderPage = new CreateOrderPage(driver);
   }
 
   public void goToOrders() {
