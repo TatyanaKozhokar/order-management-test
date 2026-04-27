@@ -1,139 +1,92 @@
-import driver.ConfigReader;
-import driver.WebDriverFactory;
-import pages.LoginPage;
-import pages.OrdersPage;
+import data.TestData;
+
 import org.junit.jupiter.api.*;
-import org.openqa.selenium.WebDriver;
+import pages.orders.OrderDetailPage;
 
 import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class OrderManagementTest {
-
-  private OrdersPage ordersPage;
-  private String createdOrderId;
-  private static final String adminUserName = ConfigReader.getProperty("admin.username");
-  private static final String adminPassword = ConfigReader.getProperty("admin.password");
-  private static final String testUserName = ConfigReader.getProperty("test.user.name");
-  private static final String testUserEmail = ConfigReader.getProperty("test.user.email");
-  private static final String testUserRole = ConfigReader.getProperty("test.user.role");
-  private static final String testUserPassword = ConfigReader.getProperty("test.user.password");
-  private static final String testOperatorName = ConfigReader.getProperty("test.operator.name");
-  private static final String testOperatorEmail = ConfigReader.getProperty("test.operator.email");
-  private static final String testOperatorRole = ConfigReader.getProperty("test.operator.role");
-  private static final String testOperatorPassword = ConfigReader.getProperty("test.operator.password");
-  private static final String testProductName = ConfigReader.getProperty("test.product.name");
-  private static final int testProductPrice = Integer.parseInt(ConfigReader.getProperty("test.product.price"));
-  private static final String customerName = ConfigReader.getProperty("test.customer.name");
-  private static final String customerPhone = ConfigReader.getProperty("test.customer.phone");
-  private static final String customerAddress = ConfigReader.getProperty("test.customer.address");
-
-  private static final String STATUS_PENDING = "Заказ создан";
-  private static final String STATUS_APPROVED = "Заказ подтвержден";
-  private static final String STATUS_CANCELLED = "Заказ отменен";
-
-  @BeforeEach
-  void setUp() {
-    WebDriverFactory.initDriver();
-    WebDriver driver = WebDriverFactory.getDriver();
-    LoginPage loginPage = new LoginPage(driver);  // инициализация после driver
-    ordersPage = new OrdersPage(driver);
-    driver.get(loginPage.getLoginUrl());
-    loginPage.login(adminUserName, adminPassword);
-
-    ordersPage.openUsersList()
-        .createUser(testUserName, testUserEmail, testUserRole, testUserPassword)
-        .createUser(testOperatorName, testOperatorEmail, testOperatorRole, testOperatorPassword)
-        .openProductCatalog()
-        .createProduct(testProductName, testProductPrice)
-        .exit();
-  }
-
+class OrderManagementTest extends BaseTest{
+  private OrderDetailPage orderDetailPage;
   @Test
   @Order(1)
   void createOrderAndVerifyAllFields() {
-    WebDriver driver = WebDriverFactory.getDriver();
-    LoginPage loginPage = new LoginPage(driver);  // инициализация после driver
-    driver.get(loginPage.getLoginUrl());
-    loginPage.login(testUserEmail, testUserPassword);
-    ordersPage.goToOrders();
+    loginAsUser();
     var quantity = 3;
-    var totalPrice = testProductPrice * quantity;
-    createdOrderId = ordersPage.createTestOrder(quantity);
+    var totalPrice = TestData.TEST_PRODUCT_PRICE * quantity;
 
-    assertEquals(customerName, ordersPage.getOrderDetailCustomerName());
-    assertEquals(customerPhone, ordersPage.getOrderDetailCustomerPhone());
-    assertEquals(customerAddress, ordersPage.getOrderDetailCustomerAddress());
-    assertEquals(quantity, ordersPage.getOrderDetailQuantity());
-    assertEquals(totalPrice, ordersPage.getOrderDetailTotal());
-    assertEquals(STATUS_PENDING, ordersPage.getOrderStatus(createdOrderId));
-    assertTrue(ordersPage.isOrderDetailCreatedAtDisplayed());
-    assertFalse(ordersPage.isOrderDetailErrorBlockDisplayed());
+    ordersPage.goToOrders();
+    createdOrderId = createOrder(quantity);
+
+    assertAll("Проверка всех полей созданного заказа",
+        () -> assertEquals(TestData.CUSTOMER_NAME, orderDetailPage.getCustomerName()),
+        () -> assertEquals(TestData.CUSTOMER_PHONE, orderDetailPage.getCustomerPhone()),
+        () -> assertEquals(TestData.CUSTOMER_ADDRESS, orderDetailPage.getCustomerAddress()),
+        () -> assertEquals(quantity, orderDetailPage.getQuantity()),
+        () -> assertEquals(totalPrice, orderDetailPage.getTotal()),
+        () -> assertEquals(TestData.STATUS_PENDING, ordersPage.getOrderStatus(sharedOrderId)),
+        () -> assertTrue(orderDetailPage.isCreatedAtDisplayed()),
+        () -> assertFalse(orderDetailPage.isErrorBlockDisplayed())
+    );
   }
 
   @Test
   @Order(2)
   void approveCreatedOrder() {
-    var quantity = 1;
-    WebDriver driver = WebDriverFactory.getDriver();
-    LoginPage loginPage = new LoginPage(driver);  // инициализация после driver
-    loginPage.login(testOperatorEmail, testOperatorPassword);
-    ordersPage.goToOrders();
-    createdOrderId = ordersPage.createTestOrder(quantity);
-    ordersPage.goToOrderDetail(createdOrderId)
-    .clickApprove(createdOrderId);
+    assertNotNull(createdOrderId, "Нет созданного заказа для подтверждения");
 
-    assertEquals(STATUS_APPROVED, ordersPage.getOrderStatus(createdOrderId));
+    loginAsOperator();
+    ordersPage.goToOrders();
+    String currentStatus = ordersPage.getOrderStatus(createdOrderId);
+    assertEquals(TestData.STATUS_PENDING, currentStatus,
+        "Заказ должен быть в статусе PENDING для подтверждения");
+
+    ordersPage.clickApprove(createdOrderId);
+
+    assertEquals(TestData.STATUS_APPROVED, ordersPage.getOrderStatus(createdOrderId),
+        "Статус заказа должен измениться на APPROVED");
   }
 
   @Test
   @Order(3)
   void cancelCreatedOrder() {
-    var quantity = 1;
-    WebDriver driver = WebDriverFactory.getDriver();
-    LoginPage loginPage = new LoginPage(driver);  // инициализация после driver
-    driver.get(loginPage.getLoginUrl());
-    loginPage.login(testUserEmail, testUserPassword);
-    ordersPage.goToOrders();
-    createdOrderId = ordersPage.createTestOrder(quantity);
-    ordersPage.goToOrderDetail(createdOrderId)
-    .clickCancel(createdOrderId);
+    assertNotNull(createdOrderId, "Нет созданного заказа для отмены");
+    loginAsUser();
 
-    assertEquals(STATUS_CANCELLED, ordersPage.getOrderStatus(createdOrderId));
+    ordersPage.goToOrders();
+    assertTrue(ordersPage.isOrderPresent(createdOrderId),
+        "Заказ должен существовать");
+    ordersPage.clickCancel(createdOrderId);
+
+    assertEquals(TestData.STATUS_CANCELLED, ordersPage.getOrderStatus(createdOrderId),
+        "Статус заказа должен измениться на CANCELLED");
   }
 
 
   @Test
   void searchOrdersByCustomer() {
+    loginAsUser();
     var quantity = 1;
-    WebDriver driver = WebDriverFactory.getDriver();
-    LoginPage loginPage = new LoginPage(driver);  // инициализация после driver
-    driver.get(loginPage.getLoginUrl());
-    loginPage.login(testUserEmail, testUserPassword);
-    ordersPage.goToOrders();
-    createdOrderId = ordersPage.createTestOrder(quantity);
-    ordersPage.searchOrders(customerName);
 
-    assertTrue(ordersPage.areAllResultsContaining(customerName));
+    ordersPage.goToOrders();
+    createdOrderId = createOrder(quantity);
+    ordersPage.searchOrders(TestData.CUSTOMER_NAME);
+
+    assertTrue(ordersPage.areAllResultsContaining(TestData.CUSTOMER_NAME));
   }
 
   @Test
   void exportOrdersToExcel() {
+    loginAsUser();
     var quantity = 1;
-    WebDriver driver = WebDriverFactory.getDriver();
-    LoginPage loginPage = new LoginPage(driver);  // инициализация после driver
-    driver.get(loginPage.getLoginUrl());
-    loginPage.login(testUserEmail, testUserPassword);
+
     ordersPage.goToOrders();
-    createdOrderId = ordersPage.createTestOrder(quantity);
+    createdOrderId = createOrder(quantity);
     ordersPage.exit();
-    driver.get(loginPage.getLoginUrl());
-    loginPage.login(testOperatorEmail, testOperatorPassword);
-    ordersPage.goToOrderDetail(createdOrderId)
-    .clickExportButton();
+
+    loginAsOperator();
+    ordersPage.clickExportButton();
 
     assertTrue(ordersPage.isExportComplete());
 
@@ -141,12 +94,5 @@ class OrderManagementTest {
 
     assertTrue(exportedFile.exists());
     assertTrue(exportedFile.length() > 0);
-  }
-
-  @AfterEach
-  void tearDown() {
-    ordersPage.deleteTestData();
-    WebDriverFactory.quitDriver();
-
   }
 }
