@@ -5,7 +5,6 @@ import org.openqa.selenium.By;
 public class Locators {
   public static final By ORDERS_BUTTON = By.linkText("Заказы");
   public static final By USERS_BUTTON = By.linkText("Пользователи");
-  public static final By PRODUCTS_BUTTON = By.linkText("Продукты");
   public static final By CREATE_ORDER_BUTTON = By.linkText("Создать заказ");
   public static final By ORDER_DETAIL_BUTTON = By.linkText("Детали заказа");
 
