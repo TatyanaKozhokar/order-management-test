@@ -7,6 +7,8 @@ public class Locators {
   public static final By USERS_BUTTON = By.linkText("Пользователи");
   public static final By PRODUCTS_BUTTON = By.linkText("Продукты");
   public static final By CREATE_ORDER_BUTTON = By.linkText("Создать заказ");
+  public static final By ORDER_DETAIL_BUTTON = By.linkText("Детали заказа");
+
 
   // Форма создания заказа
   public static final By CUSTOMER_NAME = By.id("customer-name");
@@ -19,7 +21,6 @@ public class Locators {
   public static final By SELECT_PRODUCT_INPUT = By.cssSelector(".MuiAutocomplete-popper li:first-child");
 
   // Уведомления
-  public static final By NOTIFICATION_TEXT = By.cssSelector(".notification-text");
   public static final By CREATED_ORDER_ID = By.cssSelector(".created-order-id");
 
   // Детали заказа

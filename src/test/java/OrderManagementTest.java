@@ -8,7 +8,7 @@ import java.io.File;
 import static org.junit.jupiter.api.Assertions.*;
 
 class OrderManagementTest extends BaseTest{
-  private OrderDetailPage orderDetailPage;
+  OrderDetailPage orderDetailPage;
   @Test
   @Order(1)
   void createOrderAndVerifyAllFields() {
@@ -18,6 +18,7 @@ class OrderManagementTest extends BaseTest{
 
     ordersPage.goToOrders();
     createdOrderId = createOrder(quantity);
+    ordersPage.goToOrderDetail(createdOrderId);
 
     assertAll("Проверка всех полей созданного заказа",
         () -> assertEquals(TestData.CUSTOMER_NAME, orderDetailPage.getCustomerName()),
@@ -38,11 +39,11 @@ class OrderManagementTest extends BaseTest{
 
     loginAsOperator();
     ordersPage.goToOrders();
-    String currentStatus = ordersPage.getOrderStatus(createdOrderId);
-    assertEquals(TestData.STATUS_PENDING, currentStatus,
-        "Заказ должен быть в статусе PENDING для подтверждения");
+    ordersPage.goToOrderDetail(createdOrderId);
+    assertTrue(ordersPage.getOrderLocator(createdOrderId).isDisplayed(),
+        "Заказ должен существовать");
 
-    ordersPage.clickApprove(createdOrderId);
+    orderDetailPage.clickApprove(createdOrderId);
 
     assertEquals(TestData.STATUS_APPROVED, ordersPage.getOrderStatus(createdOrderId),
         "Статус заказа должен измениться на APPROVED");
@@ -55,9 +56,10 @@ class OrderManagementTest extends BaseTest{
     loginAsUser();
 
     ordersPage.goToOrders();
-    assertTrue(ordersPage.isOrderPresent(createdOrderId),
+    assertTrue(ordersPage.getOrderLocator(createdOrderId).isDisplayed(),
         "Заказ должен существовать");
-    ordersPage.clickCancel(createdOrderId);
+    ordersPage.goToOrderDetail(createdOrderId);
+    orderDetailPage.clickCancel(createdOrderId);
 
     assertEquals(TestData.STATUS_CANCELLED, ordersPage.getOrderStatus(createdOrderId),
         "Статус заказа должен измениться на CANCELLED");

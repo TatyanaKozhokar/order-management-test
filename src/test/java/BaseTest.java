@@ -73,6 +73,7 @@ public abstract class BaseTest {
   }
 
   protected String createOrder(int quantity) {
+    ordersPage.clickCreateOrder();
     createdOrderId = createOrderPage.createTestOrder(quantity);
     return createdOrderId;
   }

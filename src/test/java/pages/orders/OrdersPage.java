@@ -1,8 +1,8 @@
 package pages.orders;
 
-import data.TestData;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.xml.sax.Locator;
 import pages.BasePage;
 import pages.Locators;
 
@@ -12,13 +12,9 @@ import java.util.List;
 
 public class OrdersPage extends BasePage {
 
-  private final CreateOrderPage createOrderPage;
-  private final OrderDetailPage orderDetailPage;
-
   public OrdersPage(WebDriver driver) {
     super(driver);
-    this.createOrderPage = new CreateOrderPage(driver);
-    this.orderDetailPage = new OrderDetailPage(driver);
+    CreateOrderPage createOrderPage = new CreateOrderPage(driver);
   }
 
   public void goToOrders() {
@@ -26,10 +22,14 @@ public class OrdersPage extends BasePage {
     waitForUrlContains("/orders");
   }
 
-  public CreateOrderPage clickCreateOrder() {
+  public void goToOrderDetail(String orderId) {
+    click(Locators.ORDER_DETAIL_BUTTON);
+    waitForUrlContains("/order_detail_" + orderId);
+  }
+
+  public void clickCreateOrder() {
     click(Locators.CREATE_ORDER_BUTTON);
     wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.CUSTOMER_NAME));
-    return createOrderPage;
   }
 
   public String getOrderStatus(String orderId) {
@@ -38,28 +38,8 @@ public class OrdersPage extends BasePage {
     return getText(By.xpath(xpath));
   }
 
-  public void clickApprove(String orderId) {
-    String id = orderId.replace("'", "\\'");
-    String xpath = String.format(Locators.APPROVE_BUTTON_XPATH, id);
-    try {
-      click(By.xpath(xpath));
-      wait.until(ExpectedConditions.stalenessOf(
-          driver.findElement(By.xpath(xpath))));
-    } catch (TimeoutException e) {
-      throw new RuntimeException("Не удалось утвердить заказ '" + orderId + "'", e);
-    }
-  }
-
-  public void clickCancel(String orderId) {
-    String id = orderId.replace("'", "\\'");
-    String xpath = String.format(Locators.CANCEL_BUTTON_XPATH, id);
-    try {
-      click(By.xpath(xpath));
-      wait.until(ExpectedConditions.stalenessOf(
-          driver.findElement(By.xpath(xpath))));
-    } catch (TimeoutException e) {
-      throw new RuntimeException("Не удалось отменить заказ '" + orderId + "'", e);
-    }
+  public WebElement getOrderLocator(String orderId){
+    return driver.findElement(By.cssSelector(".created-order-id" + orderId));
   }
 
   public void searchOrders(String searchText) {
@@ -85,15 +65,6 @@ public class OrdersPage extends BasePage {
       }
     }
     return true;
-  }
-
-  public boolean isOrderPresent(String orderId) {
-    try {
-      String xpath = String.format("//tr[td[contains(text(), '%s')]]", orderId);
-      return driver.findElement(By.xpath(xpath)).isDisplayed();
-    } catch (org.openqa.selenium.NoSuchElementException e) {
-      return false;
-    }
   }
 
   public void clickExportButton() {

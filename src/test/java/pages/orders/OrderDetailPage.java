@@ -1,7 +1,10 @@
 package pages.orders;
 
 import driver.ConfigReader;
+import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import pages.BasePage;
 import pages.Locators;
 
@@ -9,13 +12,6 @@ public class OrderDetailPage extends BasePage {
 
   public OrderDetailPage(WebDriver driver) {
     super(driver);
-  }
-
-  public OrderDetailPage open(String orderId) {
-    String baseUrl = ConfigReader.getProperty("base.url");
-    String orderDetailUrl = baseUrl + "/orders/" + orderId;
-    driver.get(orderDetailUrl);
-    return this;
   }
 
   public String getCustomerName() {
@@ -38,6 +34,30 @@ public class OrderDetailPage extends BasePage {
   public int getTotal() {
     String totalText = getText(Locators.ORDER_TOTAL);
     return Integer.parseInt(totalText);
+  }
+
+  public void clickApprove(String orderId) {
+    String id = orderId.replace("'", "\\'");
+    String xpath = String.format(Locators.APPROVE_BUTTON_XPATH, id);
+    try {
+      click(By.xpath(xpath));
+      wait.until(ExpectedConditions.stalenessOf(
+          driver.findElement(By.xpath(xpath))));
+    } catch (TimeoutException e) {
+      throw new RuntimeException("Не удалось утвердить заказ '" + orderId + "'", e);
+    }
+  }
+
+  public void clickCancel(String orderId) {
+    String id = orderId.replace("'", "\\'");
+    String xpath = String.format(Locators.CANCEL_BUTTON_XPATH, id);
+    try {
+      click(By.xpath(xpath));
+      wait.until(ExpectedConditions.stalenessOf(
+          driver.findElement(By.xpath(xpath))));
+    } catch (TimeoutException e) {
+      throw new RuntimeException("Не удалось отменить заказ '" + orderId + "'", e);
+    }
   }
 
   public boolean isCreatedAtDisplayed() {
