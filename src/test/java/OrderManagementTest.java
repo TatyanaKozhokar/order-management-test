@@ -17,7 +17,7 @@ class OrderManagementTest extends BaseTest{
     var totalPrice = TestData.TEST_PRODUCT_PRICE * quantity;
 
     ordersPage.goToOrders();
-    createdOrderId = createOrder(quantity);
+    sharedOrderId = createOrder(quantity);
     ordersPage.goToOrderDetail(createdOrderId);
 
     assertAll("Проверка всех полей созданного заказа",
@@ -35,33 +35,33 @@ class OrderManagementTest extends BaseTest{
   @Test
   @Order(2)
   void approveCreatedOrder() {
-    assertNotNull(createdOrderId, "Нет созданного заказа для подтверждения");
+    assertNotNull(sharedOrderId, "Нет созданного заказа для подтверждения");
 
     loginAsOperator();
     ordersPage.goToOrders();
-    ordersPage.goToOrderDetail(createdOrderId);
-    assertTrue(ordersPage.getOrderLocator(createdOrderId).isDisplayed(),
+    ordersPage.goToOrderDetail(sharedOrderId);
+    assertTrue(ordersPage.getOrderLocator(sharedOrderId).isDisplayed(),
         "Заказ должен существовать");
 
-    orderDetailPage.clickApprove(createdOrderId);
+    orderDetailPage.clickApprove(sharedOrderId);
 
-    assertEquals(TestData.STATUS_APPROVED, ordersPage.getOrderStatus(createdOrderId),
+    assertEquals(TestData.STATUS_APPROVED, ordersPage.getOrderStatus(sharedOrderId),
         "Статус заказа должен измениться на APPROVED");
   }
 
   @Test
   @Order(3)
   void cancelCreatedOrder() {
-    assertNotNull(createdOrderId, "Нет созданного заказа для отмены");
+    assertNotNull(sharedOrderId, "Нет созданного заказа для отмены");
     loginAsUser();
 
     ordersPage.goToOrders();
-    assertTrue(ordersPage.getOrderLocator(createdOrderId).isDisplayed(),
+    assertTrue(ordersPage.getOrderLocator(sharedOrderId).isDisplayed(),
         "Заказ должен существовать");
-    ordersPage.goToOrderDetail(createdOrderId);
-    orderDetailPage.clickCancel(createdOrderId);
+    ordersPage.goToOrderDetail(sharedOrderId);
+    orderDetailPage.clickCancel(sharedOrderId);
 
-    assertEquals(TestData.STATUS_CANCELLED, ordersPage.getOrderStatus(createdOrderId),
+    assertEquals(TestData.STATUS_CANCELLED, ordersPage.getOrderStatus(sharedOrderId),
         "Статус заказа должен измениться на CANCELLED");
   }
 
