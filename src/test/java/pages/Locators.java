@@ -22,6 +22,11 @@ public class Locators {
   // Уведомления
   public static final By CREATED_ORDER_ID = By.cssSelector(".created-order-id");
 
+  // Логин
+  public static final By USERNAME_INPUT = By.id("username");
+  public static final By PASSWORD_INPUT = By.id("password");
+  public static final By LOGIN_BUTTON = By.id("login-btn");
+
   // Детали заказа
   public static final By ORDER_CUSTOMER_NAME = By.cssSelector(".order-detail .customer-name");
   public static final By ORDER_CUSTOMER_PHONE = By.cssSelector(".order-detail .customer-phone");
