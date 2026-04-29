@@ -16,7 +16,7 @@ public abstract class BaseTest {
 
   protected static WebDriver driver;
   protected LoginPage loginPage;
-  protected OrdersPage ordersPage;
+  protected static OrdersPage ordersPage;
   protected UsersManagementPage usersManagementPage;
   protected ProductsManagementPage productsManagementPage;
   protected String createdOrderId;
@@ -51,9 +51,9 @@ public abstract class BaseTest {
 
   }
 
-  @AfterEach
-  void tearDown() {
-    if (ordersPage != null) {
+  @AfterAll
+  static void tearDown() {
+    if (ordersPage != null && sharedOrderId != null) {
       ordersPage.deleteTestData();
     }
   }
