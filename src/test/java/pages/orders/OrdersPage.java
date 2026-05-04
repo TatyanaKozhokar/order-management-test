@@ -15,7 +15,6 @@ public class OrdersPage extends BasePage {
   }
   public static final By ordersButton = By.linkText("Заказы");
   public static final By createOrderButton = By.linkText("Создать заказ");
-  public static final By orderDetailButton = By.linkText("Детали заказа");
   public static final By customerName = By.id("customer-name");
   public static final String orderStatus = "//tr[td[text()='%s']]";
   public static final By searchInput = By.cssSelector("search-input");
