@@ -23,9 +23,6 @@ public class OrdersPage extends BasePage {
   public static final By exportButton = By.id("export-btn");
   public static final By exportCompleteMessage = By.xpath("//div[contains(text(), 'Экспорт завершен')]");
 
-
-
-
   public void goToOrders() {
     click(ordersButton);
     waitForUrlContains("/orders");
