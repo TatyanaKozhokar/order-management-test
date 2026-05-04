@@ -1,13 +1,12 @@
 package pages;
 
 import driver.ConfigReader;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-
-import static pages.Locators.*;
 
 public class LoginPage {
   private static final String LOGIN_URL = ConfigReader.getProperty("base.url") + "/login";
@@ -21,6 +20,9 @@ public class LoginPage {
     this.driver = driver;
     this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
   }
+  public static final By USERNAME_INPUT = By.id("username");
+  public static final By PASSWORD_INPUT = By.id("password");
+  public static final By LOGIN_BUTTON = By.id("login-btn");
 
 public void login(String loginData, String passwordData){
   driver.get(getLoginUrl());

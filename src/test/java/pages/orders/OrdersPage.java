@@ -3,7 +3,6 @@ package pages.orders;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import pages.BasePage;
-import pages.Locators;
 
 import java.io.File;
 
@@ -14,25 +13,38 @@ public class OrdersPage extends BasePage {
   public OrdersPage(WebDriver driver) {
     super(driver);
   }
+  public static final By ordersButton = By.linkText("Заказы");
+  public static final By createOrderButton = By.linkText("Создать заказ");
+  public static final By orderDetailButton = By.linkText("Детали заказа");
+  public static final By customerName = By.id("customer-name");
+  public static final String orderStatus = "//tr[td[text()='%s']]";
+  public static final By searchInput = By.cssSelector("search-input");
+  public static final By searchButton = By.cssSelector("search-btn");
+  public static final By ordersList = By.cssSelector("#orders-grid tbody tr");
+  public static final By exportButton = By.id("export-btn");
+  public static final By exportCompleteMessage = By.xpath("//div[contains(text(), 'Экспорт завершен')]");
+
+
+
 
   public void goToOrders() {
-    click(Locators.ORDERS_BUTTON);
+    click(ordersButton);
     waitForUrlContains("/orders");
   }
 
   public void goToOrderDetail(String orderId) {
-    click(Locators.ORDER_DETAIL_BUTTON);
+    click(createOrderButton);
     waitForUrlContains("/order_detail_" + orderId);
   }
 
   public void clickCreateOrder() {
-    click(Locators.CREATE_ORDER_BUTTON);
-    wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.CUSTOMER_NAME));
+    click(createOrderButton);
+    wait.until(ExpectedConditions.visibilityOfElementLocated(customerName));
   }
 
   public String getOrderStatus(String orderId) {
     String id = orderId.replace("'", "\\'");
-    String xpath = String.format(Locators.ORDER_STATUS_XPATH, id);
+    String xpath = String.format(orderStatus, id);
     return getText(By.xpath(xpath));
   }
 
@@ -41,13 +53,13 @@ public class OrdersPage extends BasePage {
   }
 
   public void searchOrders(String searchText) {
-    sendKeys(Locators.SEARCH_INPUT, searchText);
-    click(Locators.SEARCH_BUTTON);
-    wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.ORDERS_LIST));
+    sendKeys(searchInput, searchText);
+    click(searchButton);
+    wait.until(ExpectedConditions.visibilityOfElementLocated(ordersList));
   }
 
   public List<WebElement> getOrdersList() {
-    return driver.findElements(Locators.ORDERS_LIST);
+    return driver.findElements(ordersList);
   }
 
   public boolean areAllResultsContaining(String text) {
@@ -66,12 +78,12 @@ public class OrdersPage extends BasePage {
   }
 
   public void clickExportButton() {
-    click(Locators.EXPORT_BUTTON);
+    click(exportButton);
   }
 
   public boolean isExportComplete() {
     try {
-      wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.EXPORT_COMPLETE_MESSAGE));
+      wait.until(ExpectedConditions.visibilityOfElementLocated(exportCompleteMessage));
       return true;
     } catch (TimeoutException e) {
       return false;

@@ -5,7 +5,6 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import pages.BasePage;
-import pages.Locators;
 
 public class OrderDetailPage extends BasePage {
 
@@ -13,31 +12,41 @@ public class OrderDetailPage extends BasePage {
     super(driver);
   }
 
+  public static final By orderCustomerName = By.cssSelector(".order-detail .customer-name");
+  public static final By orderCustomerPhone = By.cssSelector(".order-detail .customer-phone");
+  public static final By orderCustomerAddress = By.cssSelector(".order-detail .customer-address");
+  public static final By orderQuantity = By.cssSelector(".order-detail .qty");
+  public static final By orderTotal = By.cssSelector(".order-detail .total");
+  public static final By orderCreatedAt = By.cssSelector(".order-detail .created-at");
+  public static final By orderErrorBlock = By.cssSelector(".order-detail .error-block");
+  public static final String approveButton = "//tr[td[text()='%s']]//button[@title='Утвердить']";
+  public static final String canselButton = "//tr[td[text()='%s']]//button[@title='Отменить']";
+
   public String getCustomerName() {
-    return getText(Locators.ORDER_CUSTOMER_NAME);
+    return getText(orderCustomerName);
   }
 
   public String getCustomerPhone() {
-    return getText(Locators.ORDER_CUSTOMER_PHONE);
+    return getText(orderCustomerPhone);
   }
 
   public String getCustomerAddress() {
-    return getText(Locators.ORDER_CUSTOMER_ADDRESS);
+    return getText(orderCustomerAddress);
   }
 
   public int getQuantity() {
-    String qtyText = getText(Locators.ORDER_QUANTITY);
+    String qtyText = getText(orderQuantity);
     return Integer.parseInt(qtyText);
   }
 
   public int getTotal() {
-    String totalText = getText(Locators.ORDER_TOTAL);
+    String totalText = getText(orderTotal);
     return Integer.parseInt(totalText);
   }
 
   public void clickApprove(String orderId) {
     String id = orderId.replace("'", "\\'");
-    String xpath = String.format(Locators.APPROVE_BUTTON_XPATH, id);
+    String xpath = String.format(approveButton, id);
     try {
       click(By.xpath(xpath));
       wait.until(ExpectedConditions.stalenessOf(
@@ -49,7 +58,7 @@ public class OrderDetailPage extends BasePage {
 
   public void clickCancel(String orderId) {
     String id = orderId.replace("'", "\\'");
-    String xpath = String.format(Locators.CANCEL_BUTTON_XPATH, id);
+    String xpath = String.format(canselButton, id);
     try {
       click(By.xpath(xpath));
       wait.until(ExpectedConditions.stalenessOf(
@@ -60,10 +69,10 @@ public class OrderDetailPage extends BasePage {
   }
 
   public boolean isCreatedAtDisplayed() {
-    return isDisplayed(Locators.ORDER_CREATED_AT);
+    return isDisplayed(orderCreatedAt);
   }
 
   public boolean isErrorBlockDisplayed() {
-    return isDisplayed(Locators.ORDER_ERROR_BLOCK);
+    return isDisplayed(orderErrorBlock);
   }
 }
